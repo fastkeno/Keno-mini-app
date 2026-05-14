@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Professional Keno 80</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: radial-gradient(circle, #0f172a, #000);
+      color: white;
+      text-align: center;
+    }
+
+    h1 { color: gold; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(10, 38px);
+      gap: 6px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .num {
+      width: 38px;
+      height: 38px;
+      background: #1f2937;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .selected { background: gold; color: black; }
+    .win { background: green !important; }
+    .lose { background: red !important; }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 18px;
+      font-size: 15px;
+      background: orange;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    input {
+      padding: 8px;
+      width: 120px;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .result {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    #status {
+      color: cyan;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🎰 PRO KENO 80</h1>
+
+<h3 id="status">Ready to Play 🎮</h3>
+
+<h2>💰 Balance: <span id="balance">1000</span></h2>
+
+<input type="number" id="bet" placeholder="Bet amount" min="1" />
+
+<div class="board" id="board"></div>
+
+<button onclick="draw()">🎲 START DRAW</button>
+<button onclick="resetGame()">🔄 NEW GAME</button>
+
+<div class="result" id="result"></div>
+
+<script>
+
+let selected = [];
+let balance = 1000;
+let bet = 0;
+
+function setStatus(msg) {
+  document.getElementById("status").innerText = msg;
+}
+
+function updateBalance() {
+  document.getElementById("balance").innerText = balance;
+}
+
+// BOARD
+for (let i = 1; i <= 80; i++) {
+  let div = document.createElement("div");
+  div.classList.add("num");
+  div.innerText = i;
+
+  div.onclick = () => {
+    if (selected.includes(i)) {
+      selected = selected.filter(n => n !== i);
+      div.classList.remove("selected");
+    } else {
+      if (selected.length >= 10) {
+        alert("Max 10 numbers!");
+        return;
+      }
+      selected.push(i);
+      div.classList.add("selected");
+    }
+  };
+
+  document.getElementById("board").appendChild(div);
+}
+
+function placeBet() {
+  bet = parseInt(document.getElementById("bet").value);
+
+  if (!bet || bet <= 0) {
+    alert("Enter bet!");
+    return false;
+  }
+
+  if (bet > balance) {
+    alert("Not enough balance!");
+    return false;
+  }
+
+  balance -= bet;
+  updateBalance();
+  return true;
+}
+
+function draw() {
+
+  if (!placeBet()) return;
+
+  setStatus("🎲 Drawing...");
+
+  let winNums = [];
+  let interval = setInterval(() => {
+
+    let r = Math.floor(Math.random() * 80) + 1;
+
+    if (!winNums.includes(r)) {
+      winNums.push(r);
+
+      let cell = [...document.querySelectorAll(".num")]
+        .find(c => parseInt(c.innerText) === r);
+
+      if (cell) cell.classList.add("win");
+
+      if (winNums.length === 20) {
+        clearInterval(interval);
+        showResult(winNums);
+      }
+    }
+
+  }, 120);
+}
+
+function showResult(winNums) {
+
+  let matches = selected.filter(n => winNums.includes(n));
+  let winAmount = matches.length * bet;
+
+  balance += winAmount;
+  updateBalance();
+
+  let profit = winAmount - bet;
+
+  setStatus("🏁 Result Ready!");
+
+  document.getElementById("result").innerHTML =
+    "🏆 Wins: " + winNums.join(", ") +
+    "<br>🎯 Matches: " + matches.length +
+    "<br>💰 Profit/Loss: " + (profit >= 0 ? "+" : "") + profit;
+}
+
+function resetGame() {
+  selected = [];
+
+  document.querySelectorAll(".num").forEach(c => {
+    c.classList.remove("selected");
+    c.classList.remove("win");
+    c.classList.remove("lose");
+  });
+
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("bet").value = "";
+  setStatus("Ready to Play 🎮");
+}
+
+</script>
+
+</body>
+</html>
