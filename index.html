@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Real Keno 80</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    h1 { color: gold; }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(10, 38px);
+      gap: 6px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .num {
+      width: 38px;
+      height: 38px;
+      background: #1f2937;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .selected {
+      background: gold;
+      color: black;
+      font-weight: bold;
+    }
+
+    .win {
+      background: green !important;
+    }
+
+    .lose {
+      background: red !important;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: orange;
+      border: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🎰 REAL KENO 80</h1>
+<p>Select MAX 10 numbers</p>
+
+<div class="board" id="board"></div>
+
+<button onclick="draw()">🎲 DRAW 20 NUMBERS</button>
+
+<p id="info"></p>
+<p id="result"></p>
+
+<script>
+let selected = [];
+
+const board = document.getElementById("board");
+
+// create 80 numbers
+for (let i = 1; i <= 80; i++) {
+  let div = document.createElement("div");
+  div.classList.add("num");
+  div.innerText = i;
+
+  div.onclick = () => {
+
+    if (selected.includes(i)) {
+      selected = selected.filter(n => n !== i);
+      div.classList.remove("selected");
+    } else {
+      if (selected.length >= 10) {
+        alert("You can select only 10 numbers!");
+        return;
+      }
+      selected.push(i);
+      div.classList.add("selected");
+    }
+  };
+
+  board.appendChild(div);
+}
+
+function draw() {
+  let winNums = [];
+
+  while (winNums.length < 20) {
+    let r = Math.floor(Math.random() * 80) + 1;
+    if (!winNums.includes(r)) winNums.push(r);
+  }
+
+  let cells = document.querySelectorAll(".num");
+
+  cells.forEach(c => {
+    let num = parseInt(c.innerText);
+
+    if (winNums.includes(num)) {
+      c.classList.add("win");
+    } 
+    if (selected.includes(num) && !winNums.includes(num)) {
+      c.classList.add("lose");
+    }
+  });
+
+  let matches = selected.filter(n => winNums.includes(n));
+
+  document.getElementById("info").innerHTML =
+    "Selected: " + selected.length + " / 10";
+
+  document.getElementById("result").innerHTML =
+    "🏆 Winning Numbers: " + winNums.join(", ") +
+    "<br>🎯 Matches: " + matches.length;
+}
+</script>
+
+</body>
+</html>
